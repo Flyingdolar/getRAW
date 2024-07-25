@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+*.pyo
+*.pyc
+*.pyd
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Distribution / Packaging
+.Python
+env/
+bin/
+lib/
+lib64/
+include/
+man/
+scripts/
+share/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Visual Studio Code
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# Environment Variables
+.env
+
+# Image and Demo directories
+image/

@@ -1,0 +1,5 @@
+numpy==1.26.4
+rawpy==0.21.0
+opencv-python==4.10.0.84
+exifread==3.0.0
+tqdm==4.62.3
