@@ -23,7 +23,7 @@ This is a simple image processor that can turn a commercial RAW image (as `.CR2`
 ### 1. Clone the repository
 
 ```bash
-git clone
+git clone https://github.com/Flyingdolar/getRAW.git
 ```
 
 ### 2. (Optional) Create a virtual environment
@@ -54,7 +54,29 @@ python getraw.py -f <path_to_raw_image(or_folder)>
 | `-v` or `--verbose` | (Optional) Print the processing information. |
 | `-h` or `--help` | (Optional) Show the help message. |
 
-### 2. Verbose Mode
+### 2. Input File
+
+The input file can be a single raw image file or a folder containing multiple raw images.
+
+You can specify the path in the following ways:
+
+- Absolute path: `/path/to/image.CR2`
+- Relative path: `image.CR2`
+- Folder path: `/path/to/folder`
+
+Normally, you should specify the path by using the `-f` argument.
+
+but if you don't specify the `-f` argument, the script will use the default path set in the python code.
+change the `default_path` variable in the code to set the default path.
+[Change the default path](getraw.py#L10)
+
+```python
+default_path = "path/to/raw_images"
+```
+
+### 3. Verbose Mode
+
+> The Default mode is `0`.
 
 | Mode | Description |
 | --- | --- |
@@ -62,7 +84,7 @@ python getraw.py -f <path_to_raw_image(or_folder)>
 | `1` | Show the progress bar. |
 | `2` | Show the processing information. |
 
-### 2. Output
+### 4. Output
 
 The output files will be saved in the same directory as the raw image file. The output files include: (For example, if the raw image is `image.CR2`)
 
@@ -72,7 +94,7 @@ The output files will be saved in the same directory as the raw image file. The 
 
 When processing multiple raw images in a folder, the output files will be saved in the same folder as the raw images. The output files will have the same name as the raw images with the corresponding extensions.
 
-### 3. Information in the `.txt` file
+### 3. Information in the text file
 
 The `.txt` file contains the following information:
 
@@ -104,15 +126,17 @@ for more information, view [demo/example.txt](demo/example.txt).
 ### 1. To process a single raw image
 
 ```bash
-python getraw.py -f image.CR2 -i
+python getraw.py -f image.CR2 -i -v 2
 ```
 
 This will generate `image.raw`, `image.png`, and `image.txt` in the same directory as `image.CR2`.
 
+And the processing information will be shown.
+
 ### 2. To process multiple raw images in a folder
 
 ```bash
-python getraw.py -f /raw_images -i
+python getraw.py -f /raw_images -i -v 1
 
 # Folder structure
 # /raw_images
@@ -121,3 +145,5 @@ python getraw.py -f /raw_images -i
 ```
 
 This will generate `image1.raw`, `image1.png`, `image1.txt`, `image2.raw`, `image2.png`, `image2.txt`, etc. in the `/raw_images` folder.
+
+And the progress bar will be shown.

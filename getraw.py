@@ -7,7 +7,7 @@ import exifread
 from tqdm import tqdm
 
 # Global variables
-filePath = "demo"
+default_path = "demo"
 saveInfo = False  # Whether to save the information
 verbose = 1  # 1: only progress bar, 2: only txt info
 
@@ -142,7 +142,7 @@ def _getOpt_():
     """
     Get the command line options
     """
-    global filePath, saveInfo, verbose
+    global default_path, saveInfo, verbose
 
     # Get all the arguments
     try:
@@ -157,14 +157,14 @@ def _getOpt_():
             _printHelp_()
             exit(0)
         elif opt in ("-f", "--file"):
-            filePath = arg
+            default_path = arg
         elif opt in ("-i", "--info"):
             saveInfo = True
         elif opt in ("-v", "--verbose"):
             verbose = int(arg)
 
     # If no file name is given, exit
-    if filePath == "":
+    if default_path == "":
         print("Please enter the file name!")
         exit(0)
 
@@ -247,14 +247,14 @@ if __name__ == "__main__":
     _getOpt_()
 
     # Get the file name
-    if os.path.isdir(filePath):
-        files = os.listdir(filePath)  # Get all the files in the folder
+    if os.path.isdir(default_path):
+        files = os.listdir(default_path)  # Get all the files in the folder
     else:
-        if not os.path.isfile(filePath):
+        if not os.path.isfile(default_path):
             print("File not exist!")
             exit(0)
-        files = [filePath]  # Get the file name
-        filePath = os.path.dirname(filePath)  # Get the folder path
+        files = [default_path]  # Get the file name
+        default_path = os.path.dirname(default_path)  # Get the folder path
 
     # Show the progress bar
     progBar = tqdm(files, disable=verbose != 1)
@@ -262,7 +262,7 @@ if __name__ == "__main__":
     # Get the raw data and information
     for file in progBar:
         # Pass Condition
-        if os.path.isdir(f"{filePath}/{file}"):
+        if os.path.isdir(f"{default_path}/{file}"):
             continue  # Skip the folder
         if file.split(".")[-1] not in ["CR2", "NEF", "ARW"]:
             continue  # Skip the non-RAW image
@@ -274,18 +274,18 @@ if __name__ == "__main__":
 
         # Get the raw data and information
         progBar.set_postfix_str("->RAW------------")
-        rawData, rawInfo = getRawData(filePath + "/" + fileName + "." + extName)
-        camInfo = getCameraInfo(filePath + "/" + fileName + "." + extName)
+        rawData, rawInfo = getRawData(default_path + "/" + fileName + "." + extName)
+        camInfo = getCameraInfo(default_path + "/" + fileName + "." + extName)
 
         # Save the raw data
-        rawData.tofile(f"{filePath}/{fileName}.raw")
+        rawData.tofile(f"{default_path}/{fileName}.raw")
 
         # Save the png image
         progBar.set_postfix_str("->--->PNG-----")
         pngImg = np.array(rawData, dtype=np.uint16)
         pngImg = pngImg.reshape(rawInfo["size"].height, rawInfo["size"].width)
         pngImg = debayer(pngImg, rawInfo["color"], rawInfo["pattern"])
-        cv2.imwrite(f"{filePath}/{fileName}.png", pngImg)
+        cv2.imwrite(f"{default_path}/{fileName}.png", pngImg)
 
         # Flat and Remove \n in the matrix & pattern
         rawInfo["pattern"] = str(rawInfo["pattern"]).replace("\n", "")
@@ -294,7 +294,7 @@ if __name__ == "__main__":
         # Save the raw information
         progBar.set_postfix_str("->--->--->INFO")
         if saveInfo:
-            _saveInfo_(f"{filePath}/{fileName}.txt", rawInfo, camInfo)
+            _saveInfo_(f"{default_path}/{fileName}.txt", rawInfo, camInfo)
 
         # Print the information
         if verbose == 2:
