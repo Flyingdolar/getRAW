@@ -5,11 +5,13 @@ import getopt
 import sys, os
 import exifread
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 # Global variables
 default_path = "demo"
 saveInfo = False  # Whether to save the information
 verbose = 1  # 1: only progress bar, 2: only txt info
+drawTR = False  # Whether to draw the TR curve
 
 # Define All options
 shortOpts = "hf:iv:"
@@ -56,9 +58,13 @@ def getRawData(filePath: str) -> {np.ndarray, object}:
         "type": rawImg.raw_type,  # RAW image type (uint8, uint16, etc.)
         "color": rawImg.color_desc,  # Color description (sRGB, AdobeRGB, etc.)
         "pattern": rawImg.raw_pattern,  # Bayer pattern (RGGB, etc.)
-        "white": rawImg.white_level,  # The maximum value of the image
+        "white": rawImg.camera_white_level_per_channel,  # The maximum value of the image
         "black": rawImg.black_level_per_channel,  # The minimum value of the image
         "matrix": rawImg.color_matrix,  # Color matrix
+        "saturated": rawImg.white_level,  # The value that is considered as saturated
+        "trCurve": rawImg.tone_curve,  # Tone curve
+        "camWB": rawImg.camera_whitebalance,  # Camera white balance
+        "dayWB": rawImg.daylight_whitebalance,  # Daylight white balance
     }
     return rawData, rawInfo
 
@@ -188,6 +194,8 @@ def _printInfo_(rawInfo: object, camInfo: object):
     print(rawInfo["white"])
     print("\033[1;34m- Black level:\033[0m")
     print(rawInfo["black"])
+    print("\033[1;34m- Saturated level:\033[0m")
+    print(rawInfo["saturated"])
     print("\033[1;34m- Color matrix:\033[0m")
     print(rawInfo["matrix"])
     print()
@@ -205,6 +213,11 @@ def _printInfo_(rawInfo: object, camInfo: object):
     print("\033[1;34m- Shooting date:\033[0m")
     print(camInfo["date"])
     print()
+    print("\033[1;36mPost-processing information:\033[0m")
+    print("\033[1;34m- Camera white balance:\033[0m")
+    print(rawInfo["camWB"])
+    print("\033[1;34m- Daylight white balance:\033[0m")
+    print(rawInfo["dayWB"])
 
 
 def _saveInfo_(savePath: str, rawInfo: object, camInfo: object):
@@ -224,6 +237,7 @@ def _saveInfo_(savePath: str, rawInfo: object, camInfo: object):
         file.write(f"- Pattern: {rawInfo['pattern']}\n")
         file.write(f"- White_level: {rawInfo['white']}\n")
         file.write(f"- Black_level: {rawInfo['black']}\n")
+        file.write(f"- Saturated_level: {rawInfo['saturated']}\n")
         file.write(f"- Color_matrix: {rawInfo['matrix']}\n")
         file.write("\n")
         file.write("Camera information:\n")
@@ -233,6 +247,10 @@ def _saveInfo_(savePath: str, rawInfo: object, camInfo: object):
         file.write(f"- Aperture: {camInfo['aperture']}\n")
         file.write(f"- Focal_length: {camInfo['focal']}\n")
         file.write(f"- Shooting_date: {camInfo['date']}\n")
+        file.write("\n")
+        file.write("Post-processing information:\n")
+        file.write(f"- Camera_white_balance: {rawInfo['camWB']}\n")
+        file.write(f"- Daylight_white_balance: {rawInfo['dayWB']}\n")
         file.write("\n")
 
 
@@ -279,6 +297,12 @@ if __name__ == "__main__":
 
         # Save the raw data
         rawData.tofile(f"{default_path}/{fileName}.raw")
+
+        # Draw the TR curve if needed
+        if drawTR:
+            plt.plot(rawInfo["trCurve"])
+            plt.savefig(f"{default_path}/{fileName}_TR.png")
+            plt.close(), plt.clf()
 
         # Save the png image
         progBar.set_postfix_str("->--->PNG-----")
